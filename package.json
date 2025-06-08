@@ -1,0 +1,19 @@
+{
+  "name": "senditly-js",
+  "version": "0.0.1",
+  "description": "Senditly JS SDKs",
+  "author": "dev@u17g.com",
+  "private": true,
+  "scripts": {},
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "nx": "21.1.3",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3"
+  },
+  "nx": {}
+}

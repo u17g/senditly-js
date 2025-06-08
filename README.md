@@ -1,1 +1,1 @@
-# senditly-web-sdk
+# Senditly JS SDKs

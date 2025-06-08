@@ -1,0 +1,25 @@
+{
+  "name": "@senditly/web",
+  "version": "0.0.1",
+  "description": "Senditly SDK for web runtime",
+  "author": "dev@u17g.com",
+  "type": "module",
+  "module": "./dist/index.esm.js",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "types":  "./dist/index.d.ts",
+      "default": "./dist/index.esm.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --outDir dist"
+  },
+  "dependencies": {
+    "zod": "3.25.55"
+  }
+}
