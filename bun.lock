@@ -14,7 +14,7 @@
       "name": "@senditly/tag",
       "version": "0.0.1",
       "dependencies": {
-        "@senditly/web": "*",
+        "@senditly/web": "workspace:*",
       },
     },
     "packages/web": {
