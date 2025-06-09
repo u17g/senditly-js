@@ -20,6 +20,6 @@
     "build": "tsup src/index.ts --format esm --dts --outDir dist"
   },
   "dependencies": {
-    "@senditly/web": "*"
+    "@senditly/web": "workspace:*"
   }
 }
