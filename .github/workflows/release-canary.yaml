@@ -9,6 +9,7 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    environment: release
     permissions:
       contents: write
       id-token: write
@@ -33,13 +34,6 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Generate timestamp
-        id: timestamp
-        run: |
-          TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          echo "TIMESTAMP=${TIMESTAMP}" >> $GITHUB_OUTPUT
-          echo "Generated timestamp: ${TIMESTAMP}"
-
       - name: Build all packages
         run: |
           echo "🏗️ Building all packages with nx..."
@@ -49,87 +43,7 @@ jobs:
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
-      - name: Process all packages
-        id: packages
-        run: |
-          # Dynamically discover all packages
-          PACKAGES=($(ls -d packages/*/ | sed 's|packages/||g' | sed 's|/||g'))
-          echo "📦 Discovered packages: ${PACKAGES[@]}"
-
-          for PACKAGE in "${PACKAGES[@]}"; do
-            echo "🔨 Processing @senditly/${PACKAGE} package..."
-            cd packages/${PACKAGE}
-
-            # Get current package version
-            CURRENT_VERSION=$(node -p "require('./package.json').version")
-            CANARY_VERSION="${CURRENT_VERSION}-alpha-${{ steps.timestamp.outputs.TIMESTAMP }}"
-            echo "📝 Canary version for @senditly/${PACKAGE}: ${CANARY_VERSION}"
-
-            # Update version
-            echo "📝 Updating version to ${CANARY_VERSION}..."
-            bun version --no-git-tag-version ${CANARY_VERSION}
-
-            # Publish to npm
-            echo "📦 Publishing @senditly/${PACKAGE}@${CANARY_VERSION}..."
-            npm publish --access public --tag alpha
-
-            echo "✅ @senditly/${PACKAGE} package processed successfully!"
-            echo ""
-            # Go back to root for next iteration
-            cd ../..
-          done
-
-          echo "🎉 All packages processed successfully!"
-
-          # Set git tag version to alpha-timestamp format
-          echo "GIT_TAG_VERSION=alpha-${{ steps.timestamp.outputs.TIMESTAMP }}" >> $GITHUB_OUTPUT
-
-      - name: Create Git tag
-        run: |
-          git tag "v${{ steps.packages.outputs.GIT_TAG_VERSION }}"
-          git push origin "v${{ steps.packages.outputs.GIT_TAG_VERSION }}"
-
-      - name: Create GitHub Release
-        run: |
-          # Dynamically discover all packages
-          PACKAGES=($(ls -d packages/*/ | sed 's|packages/||g' | sed 's|/||g'))
-
-          RELEASE_BODY="## Canary Release v${{ steps.packages.outputs.GIT_TAG_VERSION }}
-
-          This is an automated alpha release from the main branch.
-
-          ### Published Packages"
-
-          for PACKAGE in "${PACKAGES[@]}"; do
-            cd packages/${PACKAGE}
-            CURRENT_VERSION=$(node -p "require('./package.json').version")
-            RELEASE_BODY="${RELEASE_BODY}
-          - \`@senditly/${PACKAGE}@${CURRENT_VERSION}\`"
-            cd ../..
-          done
-
-          RELEASE_BODY="${RELEASE_BODY}
-
-          ### Installation
-          \`\`\`bash"
-
-          for PACKAGE in "${PACKAGES[@]}"; do
-            cd packages/${PACKAGE}
-            CURRENT_VERSION=$(node -p "require('./package.json').version")
-            RELEASE_BODY="${RELEASE_BODY}
-          npm install @senditly/${PACKAGE}@${CURRENT_VERSION}"
-            cd ../..
-          done
-
-          RELEASE_BODY="${RELEASE_BODY}
-          \`\`\`
-
-          **Commit:** ${{ github.sha }}
-          **Timestamp:** ${{ steps.timestamp.outputs.TIMESTAMP }}"
-
-          gh release create "v${{ steps.packages.outputs.GIT_TAG_VERSION }}" \
-            --title "Release v${{ steps.packages.outputs.GIT_TAG_VERSION }}" \
-            --notes "${RELEASE_BODY}" \
-            --prerelease
+      - name: Run alpha release script
+        run: bun run release-alpha.ts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
