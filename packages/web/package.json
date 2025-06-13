@@ -1,6 +1,6 @@
 {
   "name": "@senditly/web",
-  "version": "0.0.1-alpha.1",
+  "version": "0.0.1",
   "description": "Senditly SDK for web runtime",
   "author": "dev@u17g.com",
   "type": "module",

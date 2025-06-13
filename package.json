@@ -1,10 +1,12 @@
 {
-  "name": "senditly-js",
+  "name": "root",
   "version": "0.0.1",
   "description": "Senditly JS SDKs",
   "author": "dev@u17g.com",
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "build": "nx run-many --target=build --all --exclude=root"
+  },
   "license": "MIT",
   "workspaces": [
     "packages/*"

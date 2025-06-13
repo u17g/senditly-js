@@ -1,7 +1,7 @@
 {
   "name": "@senditly/tag",
-  "version": "0.0.1-alpha.1",
-  "description": "Senditly Tag SDK",
+  "version": "0.0.1",
+  "description": "Senditly tag for web runtime",
   "author": "dev@u17g.com",
   "type": "module",
   "module": "./dist/index.esm.js",
