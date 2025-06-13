@@ -3,6 +3,8 @@ import { isBot } from "./utils/bot";
 import { listenUrlChange } from "./utils/observer";
 import type { SenditlyTagPlugin } from "./plugin";
 
+export type { SessionIdentifyRequest, EventTrackRequest };
+
 export type SenditlyTagConfig = SenditlyConfig & {
   /**
    * Whether to track page view events automatically.
