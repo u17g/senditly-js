@@ -52,7 +52,9 @@ jobs:
       - name: Process all packages
         id: packages
         run: |
-          PACKAGES=("web" "tag")
+          # Dynamically discover all packages
+          PACKAGES=($(ls -d packages/*/ | sed 's|packages/||g' | sed 's|/||g'))
+          echo "📦 Discovered packages: ${PACKAGES[@]}"
 
           for PACKAGE in "${PACKAGES[@]}"; do
             echo "🔨 Processing @senditly/${PACKAGE} package..."
@@ -89,7 +91,9 @@ jobs:
 
       - name: Create GitHub Release
         run: |
-          PACKAGES=("web" "tag")
+          # Dynamically discover all packages
+          PACKAGES=($(ls -d packages/*/ | sed 's|packages/||g' | sed 's|/||g'))
+
           RELEASE_BODY="## Canary Release v${{ steps.packages.outputs.GIT_TAG_VERSION }}
 
           This is an automated alpha release from the main branch.
