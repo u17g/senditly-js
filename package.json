@@ -5,15 +5,17 @@
   "author": "dev@u17g.com",
   "private": true,
   "scripts": {
-    "build": "bun run --filter=./packages/* build"
+    "build": "turbo run build"
   },
   "license": "MIT",
   "workspaces": [
     "packages/*"
   ],
+  "packageManager": "bun@1.2.16",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "tsup": "^8.5.0",
+    "turbo": "^2.5.4",
     "typescript": "^5.8.3"
   }
 }
