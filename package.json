@@ -5,7 +5,7 @@
   "author": "dev@u17g.com",
   "private": true,
   "scripts": {
-    "build": "nx run-many --target=build --no-cloud --all --exclude=root"
+    "build": "bun run --filter=./packages/* build"
   },
   "license": "MIT",
   "workspaces": [
@@ -13,9 +13,7 @@
   ],
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "nx": "21.1.3",
     "tsup": "^8.5.0",
     "typescript": "^5.8.3"
-  },
-  "nx": {}
+  }
 }
