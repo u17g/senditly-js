@@ -90,10 +90,6 @@ function publishPackage(packageName: string): void {
   console.log(`📦 Publishing ${packageJson.name}...`);
   execCommand('npm publish --access public --tag alpha', packageDir);
 
-  // Also tag as alpha-latest for easy installation
-  console.log(`🏷️ Adding alpha-latest tag to ${packageJson.name}@${packageJson.version}...`);
-  execCommand(`npm dist-tag add ${packageJson.name}@${packageJson.version} alpha-latest`);
-
   console.log(`✅ ${packageJson.name} published successfully!`);
 }
 
