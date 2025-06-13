@@ -7,6 +7,9 @@ import { join } from 'path';
 interface PackageJson {
   name: string;
   version: string;
+  dependencies: Record<string, string>;
+  devDependencies: Record<string, string>;
+  peerDependencies: Record<string, string>;
 }
 
 function execCommand(command: string, cwd?: string): string {
@@ -40,7 +43,7 @@ function updatePackageVersion(packageName: string, newVersion: string): void {
   const packageDir = join(process.cwd(), 'packages', packageName);
   const packageJsonPath = join(packageDir, 'package.json');
 
-  const packageJson: any = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+  const packageJson: PackageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   packageJson.version = newVersion;
 
   // Replace workspace dependencies with actual versions
