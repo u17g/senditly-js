@@ -16,7 +16,7 @@ export const eventTrackRequestSchema = z.object({
   payload: z.optional(z.record(z.string(), z.any())),
 });
 
-export type EventTrackRequest<Payload extends {}> = {
+export type EventTrackRequest<Payload extends {} = {}> = {
   /**
    * The event type
    */
