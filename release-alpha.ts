@@ -40,24 +40,59 @@ function updatePackageVersion(packageName: string, newVersion: string): void {
   const packageDir = join(process.cwd(), 'packages', packageName);
   const packageJsonPath = join(packageDir, 'package.json');
 
-  const packageJson: PackageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+  const packageJson: any = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   packageJson.version = newVersion;
 
+  // Replace workspace dependencies with actual versions
+  if (packageJson.dependencies) {
+    for (const [depName, depVersion] of Object.entries(packageJson.dependencies)) {
+      if (typeof depVersion === 'string' && depVersion.startsWith('workspace:')) {
+        // Replace workspace:* with the new version for internal packages
+        if (depName.startsWith('@senditly/')) {
+          packageJson.dependencies[depName] = newVersion;
+        }
+      }
+    }
+  }
+
+  if (packageJson.devDependencies) {
+    for (const [depName, depVersion] of Object.entries(packageJson.devDependencies)) {
+      if (typeof depVersion === 'string' && depVersion.startsWith('workspace:')) {
+        if (depName.startsWith('@senditly/')) {
+          packageJson.devDependencies[depName] = newVersion;
+        }
+      }
+    }
+  }
+
+  if (packageJson.peerDependencies) {
+    for (const [depName, depVersion] of Object.entries(packageJson.peerDependencies)) {
+      if (typeof depVersion === 'string' && depVersion.startsWith('workspace:')) {
+        if (depName.startsWith('@senditly/')) {
+          packageJson.peerDependencies[depName] = newVersion;
+        }
+      }
+    }
+  }
+
   writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
-  console.log(`📝 Updated @senditly/${packageName} version to ${newVersion}`);
+  console.log(`📝 Updated ${packageJson.name} version to ${newVersion}`);
 }
 
 function publishPackage(packageName: string): void {
   const packageDir = join(process.cwd(), 'packages', packageName);
-  console.log(`📦 Publishing @senditly/${packageName}...`);
+  const packageJsonPath = join(packageDir, 'package.json');
+  const packageJson: PackageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+
+  console.log(`📦 Publishing ${packageJson.name}...`);
   execCommand('npm publish --access public --tag alpha', packageDir);
-  console.log(`✅ @senditly/${packageName} published successfully!`);
+  console.log(`✅ ${packageJson.name} published successfully!`);
 }
 
 function createGitTag(tagVersion: string): void {
-  console.log(`🏷️ Creating git tag: v${tagVersion}`);
-  execCommand(`git tag "v${tagVersion}"`);
-  execCommand(`git push origin "v${tagVersion}"`);
+  console.log(`🏷️ Creating git tag: ${tagVersion}`);
+  execCommand(`git tag "${tagVersion}"`);
+  execCommand(`git push origin "${tagVersion}"`);
 }
 
 function createGitHubRelease(tagVersion: string, packages: string[], timestamp: string): void {
@@ -73,21 +108,21 @@ This is an automated alpha release from the main branch.
   for (const packageName of packages) {
     const packageJsonPath = join(process.cwd(), 'packages', packageName, 'package.json');
     const packageJson: PackageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-    releaseBody += `\n- \`@senditly/${packageName}@${packageJson.version}\``;
+    releaseBody += `\n- ${packageJson.name}@${packageJson.version}`;
   }
 
-  releaseBody += `\n\n### Installation\n\`\`\`bash`;
+  releaseBody += `\n\n### Installation\n\n`;
 
   // Add installation commands
   for (const packageName of packages) {
     const packageJsonPath = join(process.cwd(), 'packages', packageName, 'package.json');
     const packageJson: PackageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-    releaseBody += `\nnpm install @senditly/${packageName}@${packageJson.version}`;
+    releaseBody += `\nnpm install ${packageJson.name}@${packageJson.version}`;
   }
 
-  releaseBody += `\n\`\`\`\n\n**Commit:** ${process.env.GITHUB_SHA || 'unknown'}\n**Timestamp:** ${timestamp}`;
+  releaseBody += `\n\n\n**Commit:** ${process.env.GITHUB_SHA || 'unknown'}\n**Timestamp:** ${timestamp}`;
 
-  const releaseCommand = `gh release create "v${tagVersion}" --title "Release v${tagVersion}" --notes "${releaseBody}" --prerelease`;
+  const releaseCommand = `gh release create "${tagVersion}" --title "Release ${tagVersion}" --notes "${releaseBody}" --prerelease`;
   execCommand(releaseCommand);
 }
 
@@ -123,7 +158,7 @@ async function main(): Promise<void> {
     }
 
     // Create git tag
-    const gitTagVersion = `alpha-${timestamp}`;
+    const gitTagVersion = `v.alpha-${timestamp}`;
     createGitTag(gitTagVersion);
 
     // Create GitHub release
