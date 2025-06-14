@@ -11,7 +11,7 @@ export class Senditly {
   constructor(config: SenditlyConfig) {
     this.config = {
       ...config,
-      fetch: config.fetch || fetch,
+      fetch: config.fetch || window.fetch.bind(window),
       baseUrl: config.baseUrl || "https://api.senditly.ai/web/v1",
     };
   }
