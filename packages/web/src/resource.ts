@@ -53,12 +53,16 @@ export class APIResource {
           response = await this.client.config.fetch(url.toString(), {
             method,
             headers,
+            mode: "cors",
+            credentials: "include",
           });
         } else {
           response = await this.client.config.fetch(`${this.client.config.baseUrl}${path}`, {
             method,
             headers,
             body: JSON.stringify(requestOrQuery || {}),
+            mode: "cors",
+            credentials: "include",
           });
         }
 

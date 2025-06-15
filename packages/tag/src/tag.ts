@@ -18,15 +18,17 @@ export type SenditlyTagConfig = SenditlyConfig & {
 };
 
 export class SenditlyTag {
-  private readonly client: Senditly;
-  private readonly isBot: boolean;
-  private readonly waitForInit: Promise<void>;
+  private readonly _client: Senditly;
+  private readonly _isBot: boolean;
+  private readonly _waitForInit: Promise<void>;
+  private _initFailed: boolean;
 
   constructor(config: SenditlyTagConfig) {
     const { autoTrackPageView, plugins, ...rest } = config;
-    this.client = new Senditly(rest);
-    this.isBot = isBot();
-    this.waitForInit = this.initSession();
+    this._client = new Senditly(rest);
+    this._isBot = isBot();
+    this._waitForInit = this.initSession();
+    this._initFailed = false;
 
     if (plugins) {
       plugins.forEach((plugin) => {
@@ -43,10 +45,13 @@ export class SenditlyTag {
   }
 
   private async initSession() {
-    if (this.isBot) {
+    if (this._isBot) {
       return;
     }
-    await this.client.session.start({});
+    await this._client.session.start({}).catch((error) => {
+      this._initFailed = true;
+      console.error(error);
+    });
   }
 
   /**
@@ -56,19 +61,19 @@ export class SenditlyTag {
    * @param mailingLists - The mailing lists that the user is subscribed to.
    */
   async identify<Properties extends {} = {}, MailingLists extends { [key: string]: boolean } = {}>(event: SessionIdentifyRequest<Properties, MailingLists>) {
-    if (this.isBot) {
+    if (this._isBot || this._initFailed) {
       return;
     }
-    await this.waitForInit;
-    await this.client.session.identify(event);
+    await this._waitForInit;
+    await this._client.session.identify(event);
   }
 
   async track<Payload extends {} = {}>(event: EventTrackRequest<Payload>) {
-    if (this.isBot) {
+    if (this._isBot || this._initFailed) {
       return;
     }
-    await this.waitForInit;
-    await this.client.event.track(event);
+    await this._waitForInit;
+    await this._client.event.track(event);
   }
 
   /**
@@ -76,11 +81,11 @@ export class SenditlyTag {
    * @param url - The URL of the page that was viewed. If not provided, the current page URL will be used.
    */
   async page<Payload extends {} = {}>(name?: string, additionalPayload: Payload = {} as Payload) {
-    if (this.isBot) {
+    if (this._isBot || this._initFailed) {
       return;
     }
-    await this.waitForInit;
-    await this.client.event.track({
+    await this._waitForInit;
+    await this._client.event.track({
       type: "page_view",
       payload: {
         name,
