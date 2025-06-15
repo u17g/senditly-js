@@ -44,14 +44,25 @@ export class SenditlyTag {
     }
   }
 
-  private async initSession() {
+  private async initSession(): Promise<void> {
     if (this._isBot) {
       return;
     }
     await this._client.session.start({}).catch((error) => {
       this._initFailed = true;
-      console.error(error);
+      console.error("failed to init session", error);
     });
+  }
+
+  private async waitForReady(): Promise<boolean> {
+    if (this._isBot) {
+      return false;
+    }
+    await this._waitForInit;
+    if (this._initFailed) {
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -61,18 +72,16 @@ export class SenditlyTag {
    * @param mailingLists - The mailing lists that the user is subscribed to.
    */
   async identify<Properties extends {} = {}, MailingLists extends { [key: string]: boolean } = {}>(event: SessionIdentifyRequest<Properties, MailingLists>) {
-    if (this._isBot || this._initFailed) {
+    if (!await this.waitForReady()) {
       return;
     }
-    await this._waitForInit;
     await this._client.session.identify(event);
   }
 
   async track<Payload extends {} = {}>(event: EventTrackRequest<Payload>) {
-    if (this._isBot || this._initFailed) {
+    if (!await this.waitForReady()) {
       return;
     }
-    await this._waitForInit;
     await this._client.event.track(event);
   }
 
@@ -81,10 +90,9 @@ export class SenditlyTag {
    * @param url - The URL of the page that was viewed. If not provided, the current page URL will be used.
    */
   async page<Payload extends {} = {}>(name?: string, additionalPayload: Payload = {} as Payload) {
-    if (this._isBot || this._initFailed) {
+    if (!await this.waitForReady()) {
       return;
     }
-    await this._waitForInit;
     await this._client.event.track({
       type: "page_view",
       payload: {
