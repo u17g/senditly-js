@@ -10,6 +10,14 @@ export class SessionAPI extends APIResource {
     return this._post(`/sessions/start`, validatedRequest.data);
   }
 
+  close(request: SessionCloseRequest): APIPromise<SessionCloseResponse> {
+    const validatedRequest = sessionCloseRequestSchema.safeParse(request);
+    if (!validatedRequest.success) {
+      throw new APIError(400, validatedRequest.error.message);
+    }
+    return this._post(`/sessions/close`, validatedRequest.data);
+  }
+
   identify(request: SessionIdentifyRequest): APIPromise<SessionIdentifyResponse> {
     const validatedRequest = sessionIdentifyRequestSchema.safeParse(request);
     if (!validatedRequest.success) {
@@ -19,15 +27,19 @@ export class SessionAPI extends APIResource {
   }
 }
 
-export const sessionStartRequestSchema = z.object({
-  capture: z.optional(z.boolean()),
-});
+export const sessionStartRequestSchema = z.object({});
 
-export type SessionStartRequest = {
-  capture?: string;
-}
+export type SessionStartRequest = {}
 
 export type SessionStartResponse = {
+  success: true;
+}
+
+export const sessionCloseRequestSchema = z.object({});
+
+export type SessionCloseRequest = {}
+
+export type SessionCloseResponse = {
   success: true;
 }
 
