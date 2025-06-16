@@ -3,7 +3,7 @@ import { isBot } from "./utils/bot";
 import { listenUrlChange } from "./utils/observer";
 import type { SenditlyTagPlugin } from "./plugin";
 
-export type { SessionIdentifyRequest, EventTrackRequest };
+export type { Senditly, SenditlyConfig, SessionIdentifyRequest, EventTrackRequest };
 
 export type SenditlyTagOptions = {
   /**
