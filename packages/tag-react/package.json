@@ -1,7 +1,7 @@
 {
-  "name": "@senditly/tag",
+  "name": "@senditly/tag-react",
   "version": "0.0.1",
-  "description": "Senditly tag for web runtime",
+  "description": "Senditly tag for react",
   "author": "dev@u17g.com",
   "type": "module",
   "module": "./dist/index.js",
@@ -20,13 +20,20 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/senditly/senditly-js.git",
-    "directory": "packages/tag"
+    "directory": "packages/tag-react"
   },
   "homepage": "https://senditly.ai",
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --outDir dist"
   },
   "dependencies": {
-    "@senditly/web": "workspace:*"
+    "@senditly/tag": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1",
+    "react": "^18.3.1"
   }
 }

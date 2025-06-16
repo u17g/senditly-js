@@ -5,7 +5,7 @@ import type { SenditlyTagPlugin } from "./plugin";
 
 export type { SessionIdentifyRequest, EventTrackRequest };
 
-export type SenditlyTagConfig = SenditlyConfig & {
+export type SenditlyTagOptions = {
   /**
    * Whether to track page view events automatically.
    * true by default.
@@ -15,17 +15,22 @@ export type SenditlyTagConfig = SenditlyConfig & {
    * plugins
    */
   plugins?: SenditlyTagPlugin[];
-};
+}
+export type SenditlyTagConfig = (SenditlyConfig | { client: Senditly }) & SenditlyTagOptions;
 
 export class SenditlyTag {
   private readonly _client: Senditly;
+  public get client(): Senditly {
+    return this._client;
+  }
+
   private readonly _isBot: boolean;
   private readonly _waitForInit: Promise<void>;
   private _initFailed: boolean;
 
   constructor(config: SenditlyTagConfig) {
     const { autoTrackPageView, plugins, ...rest } = config;
-    this._client = new Senditly(rest);
+    this._client = "client" in config ? config.client : new Senditly(rest as SenditlyConfig);
     this._isBot = isBot();
     this._waitForInit = this.initSession();
     this._initFailed = false;
@@ -71,14 +76,14 @@ export class SenditlyTag {
    * @param properties - The properties of the user.
    * @param mailingLists - The mailing lists that the user is subscribed to.
    */
-  async identify<Properties extends {} = {}, MailingLists extends { [key: string]: boolean } = {}>(event: SessionIdentifyRequest<Properties, MailingLists>) {
+  public async identify<Properties extends {} = {}, MailingLists extends { [key: string]: boolean } = {}>(event: SessionIdentifyRequest<Properties, MailingLists>) {
     if (!await this.waitForReady()) {
       return;
     }
     await this._client.session.identify(event);
   }
 
-  async track<Payload extends {} = {}>(event: EventTrackRequest<Payload>) {
+  public async track<Payload extends {} = {}>(event: EventTrackRequest<Payload>) {
     if (!await this.waitForReady()) {
       return;
     }
@@ -89,7 +94,7 @@ export class SenditlyTag {
    * Track a page_view event.
    * @param url - The URL of the page that was viewed. If not provided, the current page URL will be used.
    */
-  async page<Payload extends {} = {}>(name?: string, additionalPayload: Payload = {} as Payload) {
+  public async page<Payload extends {} = {}>(name?: string, additionalPayload: Payload = {} as Payload) {
     if (!await this.waitForReady()) {
       return;
     }
