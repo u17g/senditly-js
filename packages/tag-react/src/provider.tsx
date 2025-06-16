@@ -1,24 +1,26 @@
 "use client";
 
 import { createContext, useContext, useMemo } from "react";
-import SenditlyTag, { type SenditlyTagConfig } from "@senditly/tag";
+import SenditlyTag, { type SenditlyTagConfig, type Senditly, type SenditlyConfig } from "@senditly/tag";
 
-const SenditlyContext = createContext<SenditlyTag | null>(null);
+const SenditlyTagContext = createContext<SenditlyTag | null>(null);
 
-export type SenditlyProviderProps = {
+export type { SenditlyTagConfig, Senditly, SenditlyConfig };
+
+export type SenditlyTagProviderProps = {
   children: React.ReactNode;
   config: SenditlyTagConfig;
 };
 
-export function SenditlyProvider({ children, config }: SenditlyProviderProps) {
+export function SenditlyTagProvider({ children, config }: SenditlyTagProviderProps) {
   const senditly = useMemo(() => {
     return new SenditlyTag(config);
   }, []);
-  return <SenditlyContext.Provider value={senditly}>{children}</SenditlyContext.Provider>;
+  return <SenditlyTagContext.Provider value={senditly}>{children}</SenditlyTagContext.Provider>;
 }
 
 export function useSenditlyTag(): SenditlyTag {
-  const senditlyTag = useContext(SenditlyContext);
+  const senditlyTag = useContext(SenditlyTagContext);
   if (!senditlyTag) {
     throw new Error(
       "useSenditlyTag must be used within a SenditlyProvider. " +
