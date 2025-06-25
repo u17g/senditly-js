@@ -80,14 +80,18 @@ export class SenditlyTag {
     if (!await this.waitForReady()) {
       return;
     }
-    await this._client.session.identify(event);
+    await this._client.session.identify(event).catch((error) => {
+      console.warn("failed to identify", error);
+    });
   }
 
   public async track<Payload extends {} = {}>(event: EventTrackRequest<Payload>) {
     if (!await this.waitForReady()) {
       return;
     }
-    await this._client.event.track(event);
+    await this._client.event.track(event).catch((error) => {
+      console.warn("failed to track", error);
+    });
   }
 
   /**
@@ -109,6 +113,8 @@ export class SenditlyTag {
         userAgent: navigator.userAgent,
         ...additionalPayload,
       },
+    }).catch((error) => {
+      console.warn("failed to track page_view", error);
     });
   }
 }
