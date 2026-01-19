@@ -1,0 +1,31 @@
+{
+  "name": "@senditly/node",
+  "version": "0.0.1",
+  "description": "Senditly SDK for node runtime",
+  "author": "dev@u17g.com",
+  "type": "module",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/senditly/senditly-js.git",
+    "directory": "packages/node"
+  },
+  "homepage": "https://senditly.ai",
+  "scripts": {
+    "build": "bun run scripts/build.ts"
+  },
+  "dependencies": {
+    "zod": "^4"
+  }
+}
